@@ -17,8 +17,10 @@ package pkcs11
 
 import (
 	"crypto"
+	"crypto/rsa"
 	"errors"
 	"fmt"
+	"hash"
 	"io"
 	"strconv"
 	"strings"
@@ -138,4 +140,10 @@ func (k *Key) Public() crypto.PublicKey {
 // Sign signs a message.
 func (k *Key) Sign(_ io.Reader, digest []byte, opts crypto.SignerOpts) ([]byte, error) {
 	return k.signer.Sign(nil, digest, opts)
+}
+
+func (k *Key) EncryptRSA(hash hash.Hash, random io.Reader,  msg []byte, label []byte) ([]byte, error){
+	var publicKey interface{} = k.Public()
+	rsaPubKey := publicKey.(rsa.PublicKey)
+	return rsa.EncryptOAEP(hash, random, &rsaPubKey, msg, label)
 }
