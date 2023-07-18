@@ -14,6 +14,8 @@
 package pkcs11
 
 import (
+	"crypto/rand"
+	"crypto/sha256"
 	"testing"
 )
 
@@ -32,5 +34,17 @@ func TestParseHexStringFailure(t *testing.T) {
 	_, err := ParseHexString("abcdefgh")
 	if err == nil {
 		t.Error("Expected error but got nil")
+	}
+}
+
+func TestEncryptRSA(t *testing.T) {
+	// parameters from internal/signer/util certificate_config.json
+	key, err := Cred("pkcs11_module.so","0x1739427","gecc","0000")
+	if err != nil {
+		t.Errorf("EncryptRSA Cred error %v", err)
+	}
+	_, err = key.EncryptRSA(sha256.New(), rand.Reader, nil,nil)
+	if err != nil {
+		t.Errorf("EncryptRSA error %v", err)
 	}
 }
