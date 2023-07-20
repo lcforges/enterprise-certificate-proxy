@@ -38,13 +38,18 @@ func TestParseHexStringFailure(t *testing.T) {
 }
 
 func TestEncryptRSA(t *testing.T) {
-	// parameters from internal/signer/util certificate_config.json
-	key, err := Cred("pkcs11_module.so","0x1739427","gecc","0000")
+	// Cred parameters from https://paste.googleplex.com/5330692178182144 (slot from line 46)
+	key, _ := Cred("/usr/lib/x86_64-linux-gnu/softhsm/libsofthsm2.so","0x268c8a20","Demo Object","0000")
+	_, err := key.EncryptRSA(sha256.New(), rand.Reader, nil,nil)
 	if err != nil {
-		t.Errorf("EncryptRSA Cred error %v", err)
+		t.Errorf("EncryptRSA error: %v", err)
 	}
-	_, err = key.EncryptRSA(sha256.New(), rand.Reader, nil,nil)
+}
+
+func TestCredLinux(t *testing.T) {
+	// parameters from https://paste.googleplex.com/5330692178182144 (slot from line 46)
+	_, err := Cred("/usr/lib/x86_64-linux-gnu/softhsm/libsofthsm2.so","0x268c8a20","Demo Object","0000")
 	if err != nil {
-		t.Errorf("EncryptRSA error %v", err)
+		t.Errorf("Cred error: %v", err)
 	}
 }

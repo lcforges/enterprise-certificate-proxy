@@ -144,6 +144,6 @@ func (k *Key) Sign(_ io.Reader, digest []byte, opts crypto.SignerOpts) ([]byte, 
 
 func (k *Key) EncryptRSA(hash hash.Hash, random io.Reader,  msg []byte, label []byte) ([]byte, error){
 	var publicKey interface{} = k.Public()
-	rsaPubKey := publicKey.(rsa.PublicKey)
-	return rsa.EncryptOAEP(hash, random, &rsaPubKey, msg, label)
+	rsaPubKey := publicKey.(*rsa.PublicKey)
+	return rsa.EncryptOAEP(hash, random, rsaPubKey, msg, label)
 }
