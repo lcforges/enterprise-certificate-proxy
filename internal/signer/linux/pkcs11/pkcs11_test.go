@@ -40,7 +40,11 @@ func TestParseHexStringFailure(t *testing.T) {
 func TestEncryptRSA(t *testing.T) {
 	// Cred parameters from https://paste.googleplex.com/5330692178182144 (slot from line 46)
 	key, _ := Cred("/usr/lib/x86_64-linux-gnu/softhsm/libsofthsm2.so","0x268c8a20","Demo Object","0000")
-	_, err := key.EncryptRSA(sha256.New(), rand.Reader, nil,nil)
+	msg := []byte("Hello")
+	ciphertext, err := key.EncryptRSA(sha256.New(), rand.Reader, msg,nil)
+	if ciphertext != nil {
+		t.Errorf("EncryptRSA error: empty ciphertext")
+	}
 	if err != nil {
 		t.Errorf("EncryptRSA error: %v", err)
 	}
