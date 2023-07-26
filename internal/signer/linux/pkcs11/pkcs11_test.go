@@ -14,7 +14,6 @@
 package pkcs11
 
 import (
-	"crypto/rand"
 	"crypto/sha256"
 	"testing"
 )
@@ -39,21 +38,38 @@ func TestParseHexStringFailure(t *testing.T) {
 
 func TestEncryptRSA(t *testing.T) {
 	// Cred parameters from https://paste.googleplex.com/5330692178182144 (slot from line 46)
-	key, _ := Cred("/usr/lib/x86_64-linux-gnu/softhsm/libsofthsm2.so","0x268c8a20","Demo Object","0000")
-	msg := []byte("Hello")
-	ciphertext, err := key.EncryptRSA(sha256.New(), rand.Reader, msg,nil)
-	if ciphertext != nil {
+	key, _ := Cred("/usr/local/lib/softhsm/libsofthsm2.so","0x268c8a20","Demo Object","0000")
+	msg := []byte("Plain text to encrypt")
+	ciphertext, err := key.EncryptRSA(sha256.New(), msg)
+	if ciphertext == nil {
 		t.Errorf("EncryptRSA error: empty ciphertext")
 	}
 	if err != nil {
-		t.Errorf("EncryptRSA error: %v", err)
+		t.Errorf("EncryptRSA error: %q", err)
 	}
 }
 
 func TestCredLinux(t *testing.T) {
 	// parameters from https://paste.googleplex.com/5330692178182144 (slot from line 46)
-	_, err := Cred("/usr/lib/x86_64-linux-gnu/softhsm/libsofthsm2.so","0x268c8a20","Demo Object","0000")
+	_, err := Cred("/usr/local/lib/softhsm/libsofthsm2.so","0x268c8a20","Demo Object","0000")
 	if err != nil {
-		t.Errorf("Cred error: %v", err)
+		t.Errorf("Cred error: %q", err)
 	}
+}
+
+func BenchmarkEncryptRSA(b *testing.B) {
+	key, errCred := Cred("/usr/local/lib/softhsm/libsofthsm2.so","0x268c8a20","Demo Object","0000")
+	if errCred != nil {
+		b.Errorf("Cred error: %q", errCred)
+		return
+	}
+	message := []byte("Plain text to encrypt")
+	hashFunc := sha256.New()
+    for i := 0; i < b.N; i++ {
+        _, errEncrypt := key.EncryptRSA(hashFunc, message)
+        if errEncrypt != nil {
+            b.Errorf("Encrypt error: %q", errEncrypt)
+            return
+        }
+    }
 }
