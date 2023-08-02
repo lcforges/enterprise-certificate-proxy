@@ -111,6 +111,7 @@ func Cred(pkcs11Module string, slotUint32Str string, label string, userPin strin
 		slot:   kslot,
 		signer: ksigner,
 		chain:  kchain,
+		privKey: privKey,
 	}, nil
 }
 
@@ -120,6 +121,7 @@ type Key struct {
 	slot   *pkcs11.Slot
 	signer crypto.Signer
 	chain  [][]byte
+	privKey crypto.PrivateKey
 }
 
 // CertificateChain returns the credential as a raw X509 cert chain. This
@@ -147,4 +149,12 @@ func (k *Key) EncryptRSA(hash hash.Hash, data []byte) ([]byte, error) {
 	publicKey := k.Public()
 	rsaPubKey := publicKey.(*rsa.PublicKey)
 	return rsa.EncryptOAEP(hash, rand.Reader, rsaPubKey, data, nil)
+}
+
+func (k *Key) EncryptGoPKCS11(data []byte) ([]byte, error) {
+	return pkcs11.Encrypt(k.privKey, data)
+}
+
+func (k *Key) DecryptGoPKCS11(encryptedData []byte) ([]byte, error) {
+	return pkcs11.Decrypt(k.privKey, encryptedData)
 }
