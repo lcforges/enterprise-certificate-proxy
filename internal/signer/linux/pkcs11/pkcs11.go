@@ -143,7 +143,7 @@ func (k *Key) Sign(_ io.Reader, digest []byte, opts crypto.SignerOpts) ([]byte, 
 	return k.signer.Sign(nil, digest, opts)
 }
 
-func (k *Key) EncryptRSA(hash hash.Hash, data []byte) ([]byte, error){
+func (k *Key) EncryptRSA(hash hash.Hash, data []byte) ([]byte, error) {
 	publicKey := k.Public()
 	rsaPubKey := publicKey.(*rsa.PublicKey)
 	return rsa.EncryptOAEP(hash, rand.Reader, rsaPubKey, data, nil)

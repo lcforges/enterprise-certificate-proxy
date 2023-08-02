@@ -57,19 +57,21 @@ func TestCredLinux(t *testing.T) {
 	}
 }
 
-func BenchmarkEncryptRSA(b *testing.B) {
+func BenchmarkEncryptRSACrypto(b *testing.B) {
+	message := []byte("Plain text to encrypt")
+	hashFunc := sha256.New()
 	key, errCred := Cred("/usr/local/lib/softhsm/libsofthsm2.so","0x268c8a20","Demo Object","0000")
 	if errCred != nil {
 		b.Errorf("Cred error: %q", errCred)
 		return
 	}
-	message := []byte("Plain text to encrypt")
-	hashFunc := sha256.New()
-    for i := 0; i < b.N; i++ {
-        _, errEncrypt := key.EncryptRSA(hashFunc, message)
-        if errEncrypt != nil {
-            b.Errorf("Encrypt error: %q", errEncrypt)
-            return
-        }
-    }
+	b.Run("encryptRSA Crypto", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			_, errEncrypt := key.EncryptRSA(hashFunc, message)
+			if errEncrypt != nil {
+				b.Errorf("Encrypt error: %q", errEncrypt)
+				return
+			}
+		}
+	}) 
 }
