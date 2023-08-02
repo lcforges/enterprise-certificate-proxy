@@ -151,10 +151,10 @@ func (k *Key) EncryptRSA(hash hash.Hash, data []byte) ([]byte, error) {
 	return rsa.EncryptOAEP(hash, rand.Reader, rsaPubKey, data, nil)
 }
 
-func (k *Key) EncryptGoPKCS11(data []byte) ([]byte, error) {
+func (k *Key) EncryptRSAGoPKCS11(data []byte) ([]byte, error) {
 	return pkcs11.Encrypt(k.privKey, data)
 }
 
-func (k *Key) DecryptGoPKCS11(encryptedData []byte) ([]byte, error) {
+func (k *Key) DecryptRSAGoPKCS11(encryptedData []byte) ([]byte, error) {
 	return pkcs11.Decrypt(k.privKey, encryptedData)
 }

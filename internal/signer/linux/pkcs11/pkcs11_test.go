@@ -41,11 +41,11 @@ func TestEncryptRSA(t *testing.T) {
 	key, _ := Cred("/usr/local/lib/softhsm/libsofthsm2.so","0x268c8a20","Demo Object","0000")
 	msg := []byte("Plain text to encrypt")
 	ciphertext, err := key.EncryptRSA(sha256.New(), msg)
+	if err != nil {
+		t.Fatalf("EncryptRSA error: %q", err)
+	}
 	if ciphertext == nil {
 		t.Errorf("EncryptRSA error: empty ciphertext")
-	}
-	if err != nil {
-		t.Errorf("EncryptRSA error: %q", err)
 	}
 }
 
@@ -74,4 +74,17 @@ func BenchmarkEncryptRSACrypto(b *testing.B) {
 			}
 		}
 	}) 
+}
+
+func TestEncryptRSAGoPKCS11(t *testing.T) {
+	// Cred parameters from https://paste.googleplex.com/5330692178182144 (slot from line 46)
+	key, _ := Cred("/usr/local/lib/softhsm/libsofthsm2.so","0x268c8a20","Demo Object","0000")
+	msg := []byte("Plain text to encrypt")
+	ciphertext, err := key.EncryptRSAGoPKCS11(msg)
+	if err != nil {
+		t.Fatalf("EncryptRSA error: %q", err)
+	}
+	if ciphertext == nil {
+		t.Errorf("EncryptRSA error: empty ciphertext")
+	}
 }
