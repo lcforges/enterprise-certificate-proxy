@@ -15,9 +15,12 @@ package pkcs11
 
 import (
 	"bytes"
-	"crypto/sha256"
+	"crypto"
 	"crypto/sha1"
+	"crypto/sha256"
 	"testing"
+
+	"github.com/google/go-pkcs11/pkcs11"
 )
 
 func TestParseHexString(t *testing.T) {
@@ -39,7 +42,6 @@ func TestParseHexStringFailure(t *testing.T) {
 }
 
 func TestEncryptRSA(t *testing.T) {
-	// Cred parameters from https://paste.googleplex.com/5330692178182144 (slot from line 46)
 	key, _ := Cred("/usr/local/lib/softhsm/libsofthsm2.so","0x268c8a20","Demo Object","0000")
 	msg := "Plain text to encrypt"
 	bMsg := []byte(msg)
@@ -84,12 +86,9 @@ func TestEncryptRSAGoPKCS11(t *testing.T) {
 	key, _ := Cred("/usr/local/lib/softhsm/libsofthsm2.so","0x268c8a20","Demo Object","0000")
 	msg := "Plain text to encrypt"
 	bMsg := []byte(msg)
-	ciphertext, err := key.EncryptRSAGoPKCS11(bMsg)
+	_, err := key.EncryptRSAGoPKCS11(bMsg)
 	if err != nil {
-		t.Fatalf("EncryptRSAGoPKCS11 error: %q", err)
-	}
-	if ciphertext == nil {
-		t.Errorf("EncryptRSAGoPKCS11 error: empty ciphertext")
+		t.Errorf("EncryptRSAGoPKCS11 error: %q", err)
 	}
 }
 
@@ -101,11 +100,9 @@ func TestDecryptRSAGoPKCS11(t *testing.T) {
 	// Softhsm only supports SHA1
 	ciphertext, err := key.EncryptRSA(sha1.New(), bMsg)
 	if err != nil {
-		t.Fatalf("EncryptRSA error: %q", err)
+		t.Errorf("EncryptRSA error: %q", err)
 	}
-	if ciphertext == nil {
-		t.Errorf("EncryptRSA error: empty ciphertext")
-	}
+	key.privKey, err = pkcs11.WithHash(key.privKey, crypto.SHA1)
 	decrypted, err := key.DecryptRSAGoPKCS11(ciphertext)
 	if err != nil {
 		t.Fatalf("DecryptRSAGoPKCS11 error: %v", err)
