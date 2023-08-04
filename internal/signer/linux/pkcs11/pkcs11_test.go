@@ -16,7 +16,7 @@ package pkcs11
 import (
 	"bytes"
 	"crypto"
-	"crypto/sha1"
+	// "crypto/sha1"
 	"crypto/sha256"
 	"testing"
 
@@ -98,11 +98,15 @@ func TestDecryptRSAGoPKCS11(t *testing.T) {
 	bMsg := []byte(msg)
 
 	// Softhsm only supports SHA1
-	ciphertext, err := key.EncryptRSA(sha1.New(), bMsg)
+	res, err := pkcs11.WithHash(key.privKey, crypto.SHA1)
+	key.privKey = res
+	if err != nil {
+		t.Errorf("WithHash error: %q", err)
+	}
+	ciphertext, err := key.EncryptRSAGoPKCS11(bMsg)
 	if err != nil {
 		t.Errorf("EncryptRSA error: %q", err)
 	}
-	key.privKey, err = pkcs11.WithHash(key.privKey, crypto.SHA1)
 	decrypted, err := key.DecryptRSAGoPKCS11(ciphertext)
 	if err != nil {
 		t.Fatalf("DecryptRSAGoPKCS11 error: %v", err)

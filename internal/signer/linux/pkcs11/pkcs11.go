@@ -152,6 +152,13 @@ func (k *Key) EncryptRSA(hash hash.Hash, data []byte) ([]byte, error) {
 }
 
 func (k *Key) EncryptRSAGoPKCS11(data []byte) ([]byte, error) {
+	publicKeyFilter := pkcs11.Filter{pkcs11.ClassPublicKey,""}
+	pubObjs, err := (k.slot).Objects(publicKeyFilter)
+	pubObj := pubObjs[0]
+	if err != nil {
+		return nil, fmt.Errorf("encryptRSAGoPKCS11 public key error, %v", err)
+	}
+	k.privKey = pkcs11.WithPublicKeyHandle(k.privKey, pubObj)
 	return pkcs11.Encrypt(k.privKey, data)
 }
 
