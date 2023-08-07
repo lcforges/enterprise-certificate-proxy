@@ -16,12 +16,20 @@ package pkcs11
 import (
 	"bytes"
 	"crypto"
-	// "crypto/sha1"
 	"crypto/sha256"
 	"testing"
 
 	"github.com/google/go-pkcs11/pkcs11"
 )
+
+var testModule = "/usr/local/lib/softhsm/libsofthsm2.so"
+var testSlot = "0x268c8a20"
+var testLabel = "Demo Object"
+var testUserPin = "0000"
+
+func makeTestKey() (*Key, error) {
+	return Cred(testModule,testSlot,testLabel,testUserPin)
+}
 
 func TestParseHexString(t *testing.T) {
 	got, err := ParseHexString("0x1739427")
@@ -42,10 +50,10 @@ func TestParseHexStringFailure(t *testing.T) {
 }
 
 func TestEncryptRSA(t *testing.T) {
-	key, _ := Cred("/usr/local/lib/softhsm/libsofthsm2.so","0x268c8a20","Demo Object","0000")
+	key, _ := makeTestKey()
 	msg := "Plain text to encrypt"
 	bMsg := []byte(msg)
-	ciphertext, err := key.EncryptRSA(sha256.New(), bMsg)
+	ciphertext, err := key.encryptRSA(sha256.New(), bMsg)
 	if err != nil {
 		t.Fatalf("EncryptRSA error: %q", err)
 	}
@@ -55,8 +63,7 @@ func TestEncryptRSA(t *testing.T) {
 }
 
 func TestCredLinux(t *testing.T) {
-	// parameters from https://paste.googleplex.com/5330692178182144 (slot from line 46)
-	_, err := Cred("/usr/local/lib/softhsm/libsofthsm2.so","0x268c8a20","Demo Object","0000")
+	_, err := makeTestKey()
 	if err != nil {
 		t.Errorf("Cred error: %q", err)
 	}
@@ -66,52 +73,54 @@ func BenchmarkEncryptRSACrypto(b *testing.B) {
 	msg := "Plain text to encrypt"
 	bMsg := []byte(msg)
 	hashFunc := sha256.New()
-	key, errCred := Cred("/usr/local/lib/softhsm/libsofthsm2.so","0x268c8a20","Demo Object","0000")
+	key, errCred := makeTestKey()
 	if errCred != nil {
 		b.Errorf("Cred error: %q", errCred)
 		return
 	}
 	b.Run("encryptRSA Crypto", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
-			_, errEncrypt := key.EncryptRSA(hashFunc, bMsg)
+			_, errEncrypt := key.encryptRSA(hashFunc, bMsg)
 			if errEncrypt != nil {
 				b.Errorf("EncryptRSA error: %q", errEncrypt)
 				return
 			}
 		}
-	}) 
+	})
 }
 
 func TestEncryptRSAGoPKCS11(t *testing.T) {
-	key, _ := Cred("/usr/local/lib/softhsm/libsofthsm2.so","0x268c8a20","Demo Object","0000")
+	key, _ := makeTestKey()
 	msg := "Plain text to encrypt"
 	bMsg := []byte(msg)
-	_, err := key.EncryptRSAGoPKCS11(bMsg)
+	// Softhsm only supports SHA1
+	res, err := pkcs11.WithHash(key.privKey, crypto.SHA1)
+	key.privKey = res
+	_, err = key.encryptRSAGoPKCS11(bMsg)
 	if err != nil {
 		t.Errorf("EncryptRSAGoPKCS11 error: %q", err)
 	}
 }
 
 func TestDecryptRSAGoPKCS11(t *testing.T) {
-	key, _ := Cred("/usr/local/lib/softhsm/libsofthsm2.so","0x268c8a20","Demo Object","0000")
+	key, _ := makeTestKey()
 	msg := "Plain text to encrypt"
 	bMsg := []byte(msg)
-
 	// Softhsm only supports SHA1
 	res, err := pkcs11.WithHash(key.privKey, crypto.SHA1)
 	key.privKey = res
 	if err != nil {
 		t.Errorf("WithHash error: %q", err)
 	}
-	ciphertext, err := key.EncryptRSAGoPKCS11(bMsg)
+	ciphertext, err := key.encryptRSAGoPKCS11(bMsg)
 	if err != nil {
 		t.Errorf("EncryptRSA error: %q", err)
 	}
-	decrypted, err := key.DecryptRSAGoPKCS11(ciphertext)
+	decrypted, err := key.decryptRSAGoPKCS11(ciphertext)
 	if err != nil {
 		t.Fatalf("DecryptRSAGoPKCS11 error: %v", err)
 	}
-	decrypted = bytes.Trim(decrypted,"\x00")
+	decrypted = bytes.Trim(decrypted, "\x00")
 	if string(decrypted) != msg {
 		t.Errorf("EncryptRSAGoPKCS11 Error: expected %q, got %q", msg, string(decrypted))
 	}

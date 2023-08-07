@@ -17,6 +17,7 @@ package pkcs11
 
 import (
 	"crypto"
+	"crypto/ecdsa"
 	"crypto/rand"
 	"crypto/rsa"
 	"errors"
@@ -108,9 +109,9 @@ func Cred(pkcs11Module string, slotUint32Str string, label string, userPin strin
 	}
 
 	return &Key{
-		slot:   kslot,
-		signer: ksigner,
-		chain:  kchain,
+		slot:    kslot,
+		signer:  ksigner,
+		chain:   kchain,
 		privKey: privKey,
 	}, nil
 }
@@ -118,9 +119,9 @@ func Cred(pkcs11Module string, slotUint32Str string, label string, userPin strin
 // Key is a wrapper around the pkcs11 module and uses it to
 // implement signing-related methods.
 type Key struct {
-	slot   *pkcs11.Slot
-	signer crypto.Signer
-	chain  [][]byte
+	slot    *pkcs11.Slot
+	signer  crypto.Signer
+	chain   [][]byte
 	privKey crypto.PrivateKey
 }
 
@@ -145,14 +146,42 @@ func (k *Key) Sign(_ io.Reader, digest []byte, opts crypto.SignerOpts) ([]byte, 
 	return k.signer.Sign(nil, digest, opts)
 }
 
-func (k *Key) EncryptRSA(hash hash.Hash, data []byte) ([]byte, error) {
+func (k *Key) Encrypt(data []byte) ([]byte, error) {
+	publicKey := k.Public()
+	_, ok := publicKey.(*rsa.PublicKey)
+	if ok {
+		return k.encryptRSAGoPKCS11(data)
+	}
+	_, ok = publicKey.(*ecdsa.PublicKey)
+	if ok {
+		// TODO: implement encryption for ec keys
+		return nil, nil
+	}
+	return nil, fmt.Errorf("encrypt error: Unsupported key type")
+}
+
+func (k *Key) Decrypt(encryptedData []byte) ([]byte, error) {
+	publicKey := k.Public()
+	_, ok := publicKey.(*rsa.PublicKey)
+	if ok {
+		return k.decryptRSAGoPKCS11(encryptedData)
+	}
+	_, ok = publicKey.(*ecdsa.PublicKey)
+	if ok {
+		// TODO: implement decryption for ec keys
+		return nil, nil
+	}
+	return nil, fmt.Errorf("decrypt error: Unsupported key type")
+}
+
+func (k *Key) encryptRSA(hash hash.Hash, data []byte) ([]byte, error) {
 	publicKey := k.Public()
 	rsaPubKey := publicKey.(*rsa.PublicKey)
 	return rsa.EncryptOAEP(hash, rand.Reader, rsaPubKey, data, nil)
 }
 
-func (k *Key) EncryptRSAGoPKCS11(data []byte) ([]byte, error) {
-	publicKeyFilter := pkcs11.Filter{pkcs11.ClassPublicKey,""}
+func (k *Key) encryptRSAGoPKCS11(data []byte) ([]byte, error) {
+	publicKeyFilter := pkcs11.Filter{pkcs11.ClassPublicKey, ""}
 	pubObjs, err := (k.slot).Objects(publicKeyFilter)
 	pubObj := pubObjs[0]
 	if err != nil {
@@ -162,6 +191,6 @@ func (k *Key) EncryptRSAGoPKCS11(data []byte) ([]byte, error) {
 	return pkcs11.Encrypt(k.privKey, data)
 }
 
-func (k *Key) DecryptRSAGoPKCS11(encryptedData []byte) ([]byte, error) {
+func (k *Key) decryptRSAGoPKCS11(encryptedData []byte) ([]byte, error) {
 	return pkcs11.Decrypt(k.privKey, encryptedData)
 }
