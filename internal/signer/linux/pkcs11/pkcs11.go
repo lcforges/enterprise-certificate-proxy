@@ -113,6 +113,7 @@ func Cred(pkcs11Module string, slotUint32Str string, label string, userPin strin
 		signer:  ksigner,
 		chain:   kchain,
 		privKey: privKey,
+		label:	 label,
 	}, nil
 }
 
@@ -123,6 +124,7 @@ type Key struct {
 	signer  crypto.Signer
 	chain   [][]byte
 	privKey crypto.PrivateKey
+	label	string
 }
 
 // CertificateChain returns the credential as a raw X509 cert chain. This
@@ -181,7 +183,7 @@ func (k *Key) encryptRSA(hash hash.Hash, data []byte) ([]byte, error) {
 }
 
 func (k *Key) encryptRSAWithPKCS11(data []byte) ([]byte, error) {
-	publicKeyFilter := pkcs11.Filter{pkcs11.ClassPublicKey, ""}
+	publicKeyFilter := pkcs11.Filter{pkcs11.ClassPublicKey, k.label}
 	pubObjs, err := (k.slot).Objects(publicKeyFilter)
 	if pubObjs == nil {
 		return nil, fmt.Errorf("encryptRSAWithPKCS11 error: no public keys found")
