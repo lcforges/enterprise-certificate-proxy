@@ -185,7 +185,7 @@ func (k *Key) encryptRSAWithPKCS11(data []byte) ([]byte, error) {
 	pubObjs, err := (k.slot).Objects(publicKeyFilter)
 	pubObj := pubObjs[0]
 	if err != nil {
-		return nil, fmt.Errorf("encryptRSAGoPKCS11 error retrieving public key: %v", err)
+		return nil, fmt.Errorf("encryptRSAWithPKCS11 error retrieving public key: %v", err)
 	}
 	k.privKey = pkcs11.WithPublicKeyHandle(k.privKey, pubObj)
 	return pkcs11.Encrypt(k.privKey, data)

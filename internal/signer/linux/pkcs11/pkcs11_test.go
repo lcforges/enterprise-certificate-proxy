@@ -98,7 +98,7 @@ func TestEncryptRSAWithPKCS11(t *testing.T) {
 	key.privKey = res
 	_, err = key.encryptRSAWithPKCS11(bMsg)
 	if err != nil {
-		t.Errorf("EncryptRSAGoPKCS11 error: %q", err)
+		t.Errorf("EncryptRSAWithPKCS11 error: %q", err)
 	}
 }
 
@@ -114,15 +114,15 @@ func TestDecryptRSAWithPKCS11(t *testing.T) {
 	}
 	ciphertext, err := key.encryptRSAWithPKCS11(bMsg)
 	if err != nil {
-		t.Errorf("EncryptRSAGoPKCS11 error: %q", err)
+		t.Errorf("EncryptRSAWithPKCS11 error: %q", err)
 	}
 	decrypted, err := key.decryptRSAWithPKCS11(ciphertext)
 	if err != nil {
-		t.Fatalf("DecryptRSAGoPKCS11 error: %v", err)
+		t.Fatalf("DecryptRSAWithPKCS11 error: %v", err)
 	}
 	decrypted = bytes.Trim(decrypted, "\x00")
 	if string(decrypted) != msg {
-		t.Errorf("DecryptRSAGoPKCS11 Error: expected %q, got %q", msg, string(decrypted))
+		t.Errorf("DecryptRSAWithPKCS11 Error: expected %q, got %q", msg, string(decrypted))
 	}
 }
 
