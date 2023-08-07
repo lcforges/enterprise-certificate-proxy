@@ -89,20 +89,20 @@ func BenchmarkEncryptRSACrypto(b *testing.B) {
 	})
 }
 
-func TestEncryptRSAGoPKCS11(t *testing.T) {
+func TestEncryptRSAWithPKCS11(t *testing.T) {
 	key, _ := makeTestKey()
 	msg := "Plain text to encrypt"
 	bMsg := []byte(msg)
 	// Softhsm only supports SHA1
 	res, err := pkcs11.WithHash(key.privKey, crypto.SHA1)
 	key.privKey = res
-	_, err = key.encryptRSAGoPKCS11(bMsg)
+	_, err = key.encryptRSAWithPKCS11(bMsg)
 	if err != nil {
 		t.Errorf("EncryptRSAGoPKCS11 error: %q", err)
 	}
 }
 
-func TestDecryptRSAGoPKCS11(t *testing.T) {
+func TestDecryptRSAWithPKCS11(t *testing.T) {
 	key, _ := makeTestKey()
 	msg := "Plain text to encrypt"
 	bMsg := []byte(msg)
@@ -112,11 +112,11 @@ func TestDecryptRSAGoPKCS11(t *testing.T) {
 	if err != nil {
 		t.Errorf("WithHash error: %q", err)
 	}
-	ciphertext, err := key.encryptRSAGoPKCS11(bMsg)
+	ciphertext, err := key.encryptRSAWithPKCS11(bMsg)
 	if err != nil {
 		t.Errorf("EncryptRSAGoPKCS11 error: %q", err)
 	}
-	decrypted, err := key.decryptRSAGoPKCS11(ciphertext)
+	decrypted, err := key.decryptRSAWithPKCS11(ciphertext)
 	if err != nil {
 		t.Fatalf("DecryptRSAGoPKCS11 error: %v", err)
 	}

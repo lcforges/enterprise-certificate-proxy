@@ -150,7 +150,7 @@ func (k *Key) Encrypt(data []byte) ([]byte, error) {
 	publicKey := k.Public()
 	_, ok := publicKey.(*rsa.PublicKey)
 	if ok {
-		return k.encryptRSAGoPKCS11(data)
+		return k.encryptRSAWithPKCS11(data)
 	}
 	_, ok = publicKey.(*ecdsa.PublicKey)
 	if ok {
@@ -164,7 +164,7 @@ func (k *Key) Decrypt(encryptedData []byte) ([]byte, error) {
 	publicKey := k.Public()
 	_, ok := publicKey.(*rsa.PublicKey)
 	if ok {
-		return k.decryptRSAGoPKCS11(encryptedData)
+		return k.decryptRSAWithPKCS11(encryptedData)
 	}
 	_, ok = publicKey.(*ecdsa.PublicKey)
 	if ok {
@@ -180,17 +180,17 @@ func (k *Key) encryptRSA(hash hash.Hash, data []byte) ([]byte, error) {
 	return rsa.EncryptOAEP(hash, rand.Reader, rsaPubKey, data, nil)
 }
 
-func (k *Key) encryptRSAGoPKCS11(data []byte) ([]byte, error) {
+func (k *Key) encryptRSAWithPKCS11(data []byte) ([]byte, error) {
 	publicKeyFilter := pkcs11.Filter{pkcs11.ClassPublicKey, ""}
 	pubObjs, err := (k.slot).Objects(publicKeyFilter)
 	pubObj := pubObjs[0]
 	if err != nil {
-		return nil, fmt.Errorf("encryptRSAGoPKCS11 public key error, %v", err)
+		return nil, fmt.Errorf("encryptRSAGoPKCS11 error retrieving public key: %v", err)
 	}
 	k.privKey = pkcs11.WithPublicKeyHandle(k.privKey, pubObj)
 	return pkcs11.Encrypt(k.privKey, data)
 }
 
-func (k *Key) decryptRSAGoPKCS11(encryptedData []byte) ([]byte, error) {
+func (k *Key) decryptRSAWithPKCS11(encryptedData []byte) ([]byte, error) {
 	return pkcs11.Decrypt(k.privKey, encryptedData)
 }
