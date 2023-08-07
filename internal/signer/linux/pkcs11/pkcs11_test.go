@@ -28,7 +28,7 @@ var testLabel = "Demo Object"
 var testUserPin = "0000"
 
 func makeTestKey() (*Key, error) {
-	return Cred(testModule,testSlot,testLabel,testUserPin)
+	return Cred(testModule, testSlot, testLabel, testUserPin)
 }
 
 func TestParseHexString(t *testing.T) {
