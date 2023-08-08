@@ -58,7 +58,7 @@ func TestEncryptRSA(t *testing.T) {
 		t.Fatalf("EncryptRSA error: %q", err)
 	}
 	if ciphertext == nil {
-		t.Errorf("EncryptRSA error: empty ciphertext")
+		t.Error("EncryptRSA error: empty ciphertext")
 	}
 }
 
