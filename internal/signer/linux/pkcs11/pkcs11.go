@@ -159,7 +159,7 @@ func (k *Key) Encrypt(data []byte) ([]byte, error) {
 		// TODO: implement encryption for ec keys
 		return nil, nil
 	}
-	return nil, fmt.Errorf("encrypt error: Unsupported key type")
+	return nil, errors.New("encrypt error: Unsupported key type")
 }
 
 func (k *Key) Decrypt(encryptedData []byte) ([]byte, error) {
@@ -173,7 +173,7 @@ func (k *Key) Decrypt(encryptedData []byte) ([]byte, error) {
 		// TODO: implement decryption for ec keys
 		return nil, nil
 	}
-	return nil, fmt.Errorf("decrypt error: Unsupported key type")
+	return nil, errors.New("decrypt error: Unsupported key type")
 }
 
 func (k *Key) encryptRSA(hash hash.Hash, data []byte) ([]byte, error) {
@@ -189,7 +189,7 @@ func (k *Key) encryptRSAWithPKCS11(data []byte) ([]byte, error) {
 		return nil, fmt.Errorf("encryptRSAWithPKCS11 error retrieving public key: %v", err)
 	}
 	if len(pubObjs) == 0 {
-		return nil, fmt.Errorf("encryptRSAWithPKCS11 error: no public keys found")
+		return nil, errors.New("encryptRSAWithPKCS11 error: no public keys found")
 	}
 	pubObj := pubObjs[0]
 	k.privKey = pkcs11.WithPublicKeyHandle(k.privKey, pubObj)
