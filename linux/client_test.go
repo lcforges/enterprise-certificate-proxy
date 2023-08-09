@@ -14,6 +14,7 @@
 package linux
 
 import (
+	"bytes"
 	"crypto"
 	"testing"
 )
@@ -32,9 +33,39 @@ func TestEncrypt(t *testing.T) {
 	bMessage := []byte(message)
 	//Softhsm only supports SHA1
 	res, err := (sk.key).WithHash(crypto.SHA1)
+	if err != nil {
+		t.Errorf("Client Encrypt: error setting hash function, %q", err)
+	}
 	sk.key = res
 	_, err = sk.Encrypt(bMessage)
 	if err != nil {
 		t.Errorf("Client Encrypt error: %q", err)
+	}
+}
+
+func TestDecrypt(t *testing.T) {
+	sk, err := NewSecureKey(testModule, testSlot, testLabel, testUserPin)
+	if err != nil {
+		t.Errorf("Client Decrypt: error generating secure key, %q", err)
+	}
+	message := "Plain text to encrypt"
+	bMessage := []byte(message)
+	//Softhsm only supports SHA1
+	res, err := (sk.key).WithHash(crypto.SHA1)
+	if err != nil {
+		t.Errorf("Client Decrypt: error setting hash function, %q", err)
+	}
+	sk.key = res
+	cipher, err := sk.Encrypt(bMessage)
+	if err != nil {
+		t.Errorf("Client Encrypt error: %q", err)
+	}
+	decrypted, err := sk.Decrypt(cipher)
+	if err != nil {
+		t.Fatalf("Client Decrypt error: %v", err)
+	}
+	decrypted = bytes.Trim(decrypted, "\x00")
+	if string(decrypted) != message {
+		t.Errorf("Client Decrypt error: expected %q, got %q", message, string(decrypted))
 	}
 }
