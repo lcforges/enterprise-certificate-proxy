@@ -19,11 +19,13 @@ import (
 	"testing"
 )
 
-var testModule = "/usr/local/lib/softhsm/libsofthsm2.so"
-var testSlot = "0x268c8a20"
-var testLabel = "Demo Object"
-var testUserPin = "0000"
-
+const (
+	testModule = "/usr/local/lib/softhsm/libsofthsm2.so"
+	testSlot = "0x268c8a20"
+	testLabel = "Demo Object"
+	testUserPin = "0000"
+)
+ 
 func TestEncrypt(t *testing.T) {
 	sk, err := NewSecureKey(testModule, testSlot, testLabel, testUserPin)
 	if err != nil {
