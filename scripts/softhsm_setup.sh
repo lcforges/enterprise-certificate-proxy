@@ -20,7 +20,7 @@ TOKEN_NAME="Demo Token"
 OBJECT_LABEL="Demo Object"
 PIN="0000"
 
-function install_dependencies {
+function install_dependencies() {
   # Install PKCS #11 related dependencies.
   # 1. softhsm2 is a software based HSM that implements the PKCS #11 spec.
   # 2. libp11-kit-dev contains a shared library at we will use to interact with
@@ -30,7 +30,7 @@ function install_dependencies {
   sudo apt install softhsm2 libp11-kit-dev gnutls-bin
 }
 
-function uninstall_dependencies {
+function uninstall_dependencies() {
   # Install PKCS #11 related dependencies.
   # 1. softhsm2 is a software based HSM that implements the PKCS #11 spec.
   # 2. libp11-kit-dev contains a shared library at we will use to interact with
@@ -40,7 +40,7 @@ function uninstall_dependencies {
   sudo apt remove softhsm2 libp11-kit-dev gnutls-bin
 }
 
-function setup_pkcs11_module {
+function setup_pkcs11_module() {
   # Make softhsm2 discoverable by PKCS #11 tools.
   sudo mkdir -p /etc/pkcs11/modules && echo "module: /usr/lib/softhsm/libsofthsm2.so" | sudo tee -a /etc/pkcs11/modules/softhsm.module
 
@@ -79,7 +79,7 @@ EOF
   popd
 }
 
-function cleanup_pkcs11 {
+function cleanup_pkcs11() {
   sudo rm -rvf /etc/pkcs11/modules
   rm -rvf $HOME/.config/softhsm2
 }
