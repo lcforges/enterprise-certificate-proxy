@@ -18,8 +18,6 @@ import (
 	"crypto"
 	"crypto/sha256"
 	"testing"
-
-	"github.com/google/go-pkcs11/pkcs11"
 )
 
 var testModule = "/usr/local/lib/softhsm/libsofthsm2.so"
@@ -94,8 +92,7 @@ func TestEncryptRSAWithPKCS11(t *testing.T) {
 	msg := "Plain text to encrypt"
 	bMsg := []byte(msg)
 	// Softhsm only supports SHA1
-	res, err := pkcs11.WithHash(key.privKey, crypto.SHA1)
-	key.privKey = res
+	key, err := key.WithHash(crypto.SHA1)
 	_, err = key.encryptRSAWithPKCS11(bMsg)
 	if err != nil {
 		t.Errorf("EncryptRSAWithPKCS11 error: %q", err)
@@ -107,8 +104,7 @@ func TestDecryptRSAWithPKCS11(t *testing.T) {
 	msg := "Plain text to encrypt"
 	bMsg := []byte(msg)
 	// Softhsm only supports SHA1
-	res, err := pkcs11.WithHash(key.privKey, crypto.SHA1)
-	key.privKey = res
+	key, err := key.WithHash(crypto.SHA1)
 	if err != nil {
 		t.Errorf("WithHash error: %q", err)
 	}
@@ -131,8 +127,7 @@ func TestEncrypt(t *testing.T) {
 	msg := "Plain text to encrypt"
 	bMsg := []byte(msg)
 	// Softhsm only supports SHA1
-	res, err := pkcs11.WithHash(key.privKey, crypto.SHA1)
-	key.privKey = res
+	key, err := key.WithHash(crypto.SHA1)
 	_, err = key.Encrypt(bMsg)
 	if err != nil {
 		t.Errorf("Encrypt error: %q", err)
@@ -144,8 +139,7 @@ func TestDecrypt(t *testing.T) {
 	msg := "Plain text to encrypt"
 	bMsg := []byte(msg)
 	// Softhsm only supports SHA1
-	res, err := pkcs11.WithHash(key.privKey, crypto.SHA1)
-	key.privKey = res
+	key, err := key.WithHash(crypto.SHA1)
 	if err != nil {
 		t.Errorf("WithHash error: %q", err)
 	}

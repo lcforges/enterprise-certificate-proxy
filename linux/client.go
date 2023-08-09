@@ -56,3 +56,7 @@ func NewSecureKey(pkcs11Module string, slotUint32Str string, label string, userP
 	}
 	return &SecureKey{key: k}, nil
 }
+
+func (sk *SecureKey) Encrypt(data []byte) ([]byte, error) {
+	return sk.key.Encrypt(data)
+}
