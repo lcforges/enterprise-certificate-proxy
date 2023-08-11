@@ -97,6 +97,16 @@ func (k *EnterpriseCertSigner) Sign(args SignArgs, resp *[]byte) (err error) {
 	return
 }
 
+func (k *EnterpriseCertSigner) Encrypt(data []byte, encryptedData *[]byte) (err error) {
+	*encryptedData, err = k.key.Encrypt(data)
+	return
+}
+
+func (k *EnterpriseCertSigner) Decrypt(encryptedData []byte, decryptedData *[]byte) (err error) {
+	*decryptedData, err = k.key.Decrypt(encryptedData)
+	return
+}
+
 func main() {
 	enableECPLogging()
 	if len(os.Args) != 2 {
