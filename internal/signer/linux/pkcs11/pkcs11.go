@@ -199,3 +199,9 @@ func (k *Key) encryptRSAWithPKCS11(data []byte) ([]byte, error) {
 func (k *Key) decryptRSAWithPKCS11(encryptedData []byte) ([]byte, error) {
 	return pkcs11.Decrypt(k.privKey, encryptedData)
 }
+
+func (k *Key) WithHash(hash crypto.Hash) (*Key, error) {
+	res, err := pkcs11.WithHash(k.privKey, hash)
+	k.privKey = res
+	return k, err
+}
