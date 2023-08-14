@@ -27,7 +27,7 @@ install_dependencies() {
   # PKCS #11 device module, as well as pkcs11-tool which will be used for
   # interacting with the PKCS #11 module.
   # 3. gnutls-bin contains p11-tool which we will use to create PKCS #11 URIs.
-  sudo apt install softhsm2 libp11-kit-dev gnutls-bin opensc-pkcs11
+  sudo apt install softhsm2 libp11-kit-dev gnutls-bin opensc
 }
 
 uninstall_dependencies() {
