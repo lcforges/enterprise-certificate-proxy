@@ -1,4 +1,17 @@
-#!/bin/sh
+#!/bin/bash
+
+# Copyright 2023 Google LLC.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
 set -eux
 
@@ -7,17 +20,17 @@ TOKEN_NAME="Demo Token"
 OBJECT_LABEL="Demo Object"
 PIN="0000"
 
-function install_dependencies() {
+install_dependencies() {
   # Install PKCS #11 related dependencies.
   # 1. softhsm2 is a software based HSM that implements the PKCS #11 spec.
   # 2. libp11-kit-dev contains a shared library at we will use to interact with
   # PKCS #11 device module, as well as pkcs11-tool which will be used for
   # interacting with the PKCS #11 module.
   # 3. gnutls-bin contains p11-tool which we will use to create PKCS #11 URIs.
-  sudo apt install softhsm2 libp11-kit-dev gnutls-bin
+  sudo apt install softhsm2 libp11-kit-dev gnutls-bin opensc
 }
 
-function uninstall_dependencies() {
+uninstall_dependencies() {
   # Install PKCS #11 related dependencies.
   # 1. softhsm2 is a software based HSM that implements the PKCS #11 spec.
   # 2. libp11-kit-dev contains a shared library at we will use to interact with
@@ -27,7 +40,7 @@ function uninstall_dependencies() {
   sudo apt remove softhsm2 libp11-kit-dev gnutls-bin
 }
 
-function setup_pkcs11_module() {
+setup_pkcs11_module() {
   # Make softhsm2 discoverable by PKCS #11 tools.
   sudo mkdir -p /etc/pkcs11/modules && echo "module: /usr/lib/softhsm/libsofthsm2.so" | sudo tee -a /etc/pkcs11/modules/softhsm.module
 
@@ -66,7 +79,7 @@ EOF
   popd
 }
 
-function cleanup_pkcs11() {
+cleanup_pkcs11() {
   sudo rm -rvf /etc/pkcs11/modules
   rm -rvf $HOME/.config/softhsm2
 }
