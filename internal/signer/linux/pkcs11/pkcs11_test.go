@@ -22,7 +22,7 @@ import (
 	"github.com/google/go-pkcs11/pkcs11"
 )
 
-var testModule = "/usr/local/lib/softhsm/libsofthsm2.so"
+var testModule = "/usr/lib/softhsm/libsofthsm2.so"
 var testSlot = "0x268c8a20"
 var testLabel = "Demo Object"
 var testUserPin = "0000"
