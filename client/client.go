@@ -70,7 +70,7 @@ type EncryptArgs struct {
 }
 
 type DecryptArgs struct {
-        Ciphertext []byte
+	Ciphertext []byte
 }
 
 // Key implements credential.Credential by holding the executed signer subprocess.

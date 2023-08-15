@@ -37,7 +37,7 @@ type EncryptArgs struct {
 }
 
 type DecryptArgs struct {
-        Ciphertext []byte
+	Ciphertext []byte
 }
 
 // EnterpriseCertSigner exports RPC methods for signing.
