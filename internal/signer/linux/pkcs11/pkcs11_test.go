@@ -17,18 +17,20 @@ import (
 	"bytes"
 	"crypto"
 	"crypto/sha256"
+	"flag"
 	"testing"
 )
 
 const (
 	testModule  = "/usr/lib/softhsm/libsofthsm2.so"
-	testSlot    = "0x268c8a20"
 	testLabel   = "Demo Object"
 	testUserPin = "0000"
 )
 
+var testSlot = flag.String("testSlot", "", "libsofthsm2 slot location")
+
 func makeTestKey() (*Key, error) {
-	key, err := Cred(testModule, testSlot, testLabel, testUserPin)
+	key, err := Cred(testModule, *testSlot, testLabel, testUserPin)
 	return key, err
 }
 
