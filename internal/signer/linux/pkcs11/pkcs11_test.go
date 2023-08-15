@@ -28,7 +28,8 @@ var testLabel = "Demo Object"
 var testUserPin = "0000"
 
 func makeTestKey() (*Key, error) {
-	return Cred(testModule, testSlot, testLabel, testUserPin)
+	key, err := Cred(testModule, testSlot, testLabel, testUserPin)
+	return key, err
 }
 
 func TestParseHexString(t *testing.T) {
@@ -50,7 +51,10 @@ func TestParseHexStringFailure(t *testing.T) {
 }
 
 func TestEncryptRSA(t *testing.T) {
-	key, _ := makeTestKey()
+	key, err := makeTestKey()
+	if err != nil {
+		t.Errorf("Cred Error, could not create test key: %v", err)
+	}
 	msg := "Plain text to encrypt"
 	bMsg := []byte(msg)
 	ciphertext, err := key.encryptRSA(sha256.New(), bMsg)
