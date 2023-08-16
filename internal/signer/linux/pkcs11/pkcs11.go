@@ -113,7 +113,8 @@ func Cred(pkcs11Module string, slotUint32Str string, label string, userPin strin
 		signer:  ksigner,
 		chain:   kchain,
 		privKey: privKey,
-		label:	 label,
+		label:   label,
+		module:  *module,
 	}, nil
 }
 
@@ -124,7 +125,8 @@ type Key struct {
 	signer  crypto.Signer
 	chain   [][]byte
 	privKey crypto.PrivateKey
-	label	string
+	label   string
+	module  pkcs11.Module
 }
 
 // CertificateChain returns the credential as a raw X509 cert chain. This
@@ -136,6 +138,7 @@ func (k *Key) CertificateChain() [][]byte {
 // Close releases resources held by the credential.
 func (k *Key) Close() {
 	k.slot.Close()
+	k.module.Close()
 }
 
 // Public returns the corresponding public key for this Key.
