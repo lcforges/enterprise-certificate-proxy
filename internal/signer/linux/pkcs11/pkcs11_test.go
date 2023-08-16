@@ -21,9 +21,9 @@ import (
 )
 
 const (
-	testModule = "/usr/local/lib/softhsm/libsofthsm2.so"
-	testSlot = "0x268c8a20"
-	testLabel = "Demo Object"
+	testModule  = "/usr/local/lib/softhsm/libsofthsm2.so"
+	testSlot    = "0x268c8a20"
+	testLabel   = "Demo Object"
 	testUserPin = "0000"
 )
 
@@ -51,6 +51,7 @@ func TestParseHexStringFailure(t *testing.T) {
 
 func TestEncryptRSA(t *testing.T) {
 	key, _ := makeTestKey()
+	defer key.Close()
 	msg := "Plain text to encrypt"
 	bMsg := []byte(msg)
 	ciphertext, err := key.encryptRSA(sha256.New(), bMsg)
@@ -63,7 +64,8 @@ func TestEncryptRSA(t *testing.T) {
 }
 
 func TestCredLinux(t *testing.T) {
-	_, err := makeTestKey()
+	key, err := makeTestKey()
+	defer key.Close()
 	if err != nil {
 		t.Errorf("Cred error: %q", err)
 	}
@@ -74,6 +76,7 @@ func BenchmarkEncryptRSACrypto(b *testing.B) {
 	bMsg := []byte(msg)
 	hashFunc := sha256.New()
 	key, errCred := makeTestKey()
+	defer key.Close()
 	if errCred != nil {
 		b.Errorf("Cred error: %q", errCred)
 		return
@@ -90,7 +93,12 @@ func BenchmarkEncryptRSACrypto(b *testing.B) {
 }
 
 func TestEncryptRSAWithPKCS11(t *testing.T) {
-	key, _ := makeTestKey()
+	key, errCred := makeTestKey()
+	defer key.Close()
+	if errCred != nil {
+		t.Errorf("Cred error: %q", errCred)
+		return
+	}
 	msg := "Plain text to encrypt"
 	bMsg := []byte(msg)
 	// Softhsm only supports SHA1
@@ -102,7 +110,12 @@ func TestEncryptRSAWithPKCS11(t *testing.T) {
 }
 
 func TestDecryptRSAWithPKCS11(t *testing.T) {
-	key, _ := makeTestKey()
+	key, errCred := makeTestKey()
+	defer key.Close()
+	if errCred != nil {
+		t.Errorf("Cred error: %q", errCred)
+		return
+	}
 	msg := "Plain text to encrypt"
 	bMsg := []byte(msg)
 	// Softhsm only supports SHA1
@@ -125,7 +138,12 @@ func TestDecryptRSAWithPKCS11(t *testing.T) {
 }
 
 func TestEncrypt(t *testing.T) {
-	key, _ := makeTestKey()
+	key, errCred := makeTestKey()
+	defer key.Close()
+	if errCred != nil {
+		t.Errorf("Cred error: %q", errCred)
+		return
+	}
 	msg := "Plain text to encrypt"
 	bMsg := []byte(msg)
 	// Softhsm only supports SHA1
@@ -137,7 +155,12 @@ func TestEncrypt(t *testing.T) {
 }
 
 func TestDecrypt(t *testing.T) {
-	key, _ := makeTestKey()
+	key, errCred := makeTestKey()
+	defer key.Close()
+	if errCred != nil {
+		t.Errorf("Cred error: %q", errCred)
+		return
+	}
 	msg := "Plain text to encrypt"
 	bMsg := []byte(msg)
 	// Softhsm only supports SHA1
