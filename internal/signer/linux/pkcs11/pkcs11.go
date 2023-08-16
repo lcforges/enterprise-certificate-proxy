@@ -186,7 +186,7 @@ func (k *Key) encryptRSA(hash hash.Hash, data []byte) ([]byte, error) {
 }
 
 func (k *Key) encryptRSAWithPKCS11(data []byte) ([]byte, error) {
-	publicKeyFilter := pkcs11.Filter{pkcs11.ClassPublicKey, k.label}
+	publicKeyFilter := pkcs11.Filter{Class: pkcs11.ClassPublicKey, Label: k.label}
 	pubObjs, err := (k.slot).Objects(publicKeyFilter)
 	if err != nil {
 		return nil, fmt.Errorf("encryptRSAWithPKCS11 error retrieving public key: %v", err)

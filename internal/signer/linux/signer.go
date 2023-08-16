@@ -57,6 +57,14 @@ type SignArgs struct {
 	Opts   crypto.SignerOpts // Options for signing, such as Hash identifier.
 }
 
+type EncryptArgs struct {
+	Plaintext []byte
+}
+
+type DecryptArgs struct {
+	Ciphertext []byte
+}
+
 // A EnterpriseCertSigner exports RPC methods for signing.
 type EnterpriseCertSigner struct {
 	key *pkcs11.Key
@@ -94,6 +102,16 @@ func (k *EnterpriseCertSigner) Public(ignored struct{}, publicKey *[]byte) (err 
 // Sign signs a message digest.
 func (k *EnterpriseCertSigner) Sign(args SignArgs, resp *[]byte) (err error) {
 	*resp, err = k.key.Sign(nil, args.Digest, args.Opts)
+	return
+}
+
+func (k *EnterpriseCertSigner) Encrypt(args EncryptArgs, encryptedData *[]byte) (err error) {
+	*encryptedData, err = k.key.Encrypt(args.Plaintext)
+	return
+}
+
+func (k *EnterpriseCertSigner) Decrypt(encryptedData DecryptArgs, decryptedData *[]byte) (err error) {
+	*decryptedData, err = k.key.Decrypt(encryptedData.Ciphertext)
 	return
 }
 
