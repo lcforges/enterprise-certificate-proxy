@@ -54,7 +54,7 @@ func TestParseHexStringFailure(t *testing.T) {
 
 func TestEncryptRSA(t *testing.T) {
 	key, err := makeTestKey()
-  defer key.Close()
+	defer key.Close()
 	if err != nil {
 		t.Errorf("Cred error: %q", err)
 	}
@@ -71,10 +71,10 @@ func TestEncryptRSA(t *testing.T) {
 
 func TestCredLinux(t *testing.T) {
 	key, err := makeTestKey()
-	defer key.Close()
 	if err != nil {
 		t.Errorf("Cred error: %q", err)
 	}
+	defer key.Close()
 }
 
 func BenchmarkEncryptRSACrypto(b *testing.B) {
@@ -82,11 +82,11 @@ func BenchmarkEncryptRSACrypto(b *testing.B) {
 	bMsg := []byte(msg)
 	hashFunc := sha256.New()
 	key, errCred := makeTestKey()
-	defer key.Close()
 	if errCred != nil {
 		b.Errorf("Cred error: %q", errCred)
 		return
 	}
+	defer key.Close()
 	b.Run("encryptRSA Crypto", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
 			_, errEncrypt := key.encryptRSA(hashFunc, bMsg)
@@ -100,11 +100,11 @@ func BenchmarkEncryptRSACrypto(b *testing.B) {
 
 func TestEncryptRSAWithPKCS11(t *testing.T) {
 	key, errCred := makeTestKey()
-	defer key.Close()
 	if errCred != nil {
 		t.Errorf("Cred error: %q", errCred)
 		return
 	}
+	defer key.Close()
 	msg := "Plain text to encrypt"
 	bMsg := []byte(msg)
 	// Softhsm only supports SHA1
@@ -117,11 +117,11 @@ func TestEncryptRSAWithPKCS11(t *testing.T) {
 
 func TestDecryptRSAWithPKCS11(t *testing.T) {
 	key, errCred := makeTestKey()
-	defer key.Close()
 	if errCred != nil {
 		t.Errorf("Cred error: %q", errCred)
 		return
 	}
+	defer key.Close()
 	msg := "Plain text to encrypt"
 	bMsg := []byte(msg)
 	// Softhsm only supports SHA1
@@ -145,11 +145,11 @@ func TestDecryptRSAWithPKCS11(t *testing.T) {
 
 func TestEncrypt(t *testing.T) {
 	key, errCred := makeTestKey()
-	defer key.Close()
 	if errCred != nil {
 		t.Errorf("Cred error: %q", errCred)
 		return
 	}
+	defer key.Close()
 	msg := "Plain text to encrypt"
 	bMsg := []byte(msg)
 	// Softhsm only supports SHA1
@@ -162,11 +162,11 @@ func TestEncrypt(t *testing.T) {
 
 func TestDecrypt(t *testing.T) {
 	key, errCred := makeTestKey()
-	defer key.Close()
 	if errCred != nil {
 		t.Errorf("Cred error: %q", errCred)
 		return
 	}
+	defer key.Close()
 	msg := "Plain text to encrypt"
 	bMsg := []byte(msg)
 	// Softhsm only supports SHA1
