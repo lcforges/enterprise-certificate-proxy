@@ -54,10 +54,10 @@ func TestParseHexStringFailure(t *testing.T) {
 
 func TestEncryptRSA(t *testing.T) {
 	key, err := makeTestKey()
-	defer key.Close()
 	if err != nil {
 		t.Errorf("Cred error: %q", err)
 	}
+	defer key.Close()
 	msg := "Plain text to encrypt"
 	bMsg := []byte(msg)
 	ciphertext, err := key.encryptRSA(sha256.New(), bMsg)
@@ -109,6 +109,9 @@ func TestEncryptRSAWithPKCS11(t *testing.T) {
 	bMsg := []byte(msg)
 	// Softhsm only supports SHA1
 	key, err := key.WithHash(crypto.SHA1)
+	if err != nil {
+		t.Errorf("WithHash error: %q", err)
+	}
 	_, err = key.encryptRSAWithPKCS11(bMsg)
 	if err != nil {
 		t.Errorf("EncryptRSAWithPKCS11 error: %q", err)
@@ -154,6 +157,9 @@ func TestEncrypt(t *testing.T) {
 	bMsg := []byte(msg)
 	// Softhsm only supports SHA1
 	key, err := key.WithHash(crypto.SHA1)
+	if err != nil {
+		t.Errorf("WithHash error: %q", err)
+	}
 	_, err = key.Encrypt(bMsg)
 	if err != nil {
 		t.Errorf("Encrypt error: %q", err)
