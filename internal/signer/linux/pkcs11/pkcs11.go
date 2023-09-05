@@ -193,7 +193,10 @@ func (k *Key) Decrypt(encryptedData []byte) ([]byte, error) {
 func (k *Key) encryptRSA(data []byte) ([]byte, error) {
 	publicKey := k.Public()
 	rsaPubKey := publicKey.(*rsa.PublicKey)
-	hash := cryptoHashToHash(k.hash)
+	hash, err := cryptoHashToHash(k.hash)
+	if err != nil {
+		return nil, err
+	}
 	return rsa.EncryptOAEP(hash, rand.Reader, rsaPubKey, data, nil)
 }
 
@@ -207,13 +210,13 @@ func (k *Key) WithHash(hash crypto.Hash) *Key {
 	return k
 }
 
-func cryptoHashToHash(hash crypto.Hash) hash.Hash {
+func cryptoHashToHash(hash crypto.Hash) (hash.Hash, error) {
 	switch hash {
 	case crypto.SHA256:
-		return sha256.New()
+		return sha256.New(), nil
 	case crypto.SHA1:
-		return sha1.New()
+		return sha1.New(), nil
 	default:
-		return nil
+		return nil, errors.New("hash conversion error: Unsupported hash")
 	}
 }
