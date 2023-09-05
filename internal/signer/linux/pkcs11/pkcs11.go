@@ -20,6 +20,8 @@ import (
 	"crypto/ecdsa"
 	"crypto/rand"
 	"crypto/rsa"
+	"crypto/sha1"
+	"crypto/sha256"
 	"errors"
 	"fmt"
 	"hash"
@@ -107,6 +109,11 @@ func Cred(pkcs11Module string, slotUint32Str string, label string, userPin strin
 	if !ok {
 		return nil, errors.New("PrivateKey does not implement crypto.Signer")
 	}
+	kdecrypter, ok := privKey.(crypto.Decrypter)
+	if !ok {
+		return nil, errors.New("PrivateKey does not implement crypto.Decrypter")
+	}
+
 
 	return &Key{
 		slot:    kslot,
@@ -115,6 +122,9 @@ func Cred(pkcs11Module string, slotUint32Str string, label string, userPin strin
 		privKey: privKey,
 		label:   label,
 		module:  *module,
+		// SHA256 initialized as default
+		hash:	 crypto.SHA256,
+		decrypter: kdecrypter,
 	}, nil
 }
 
@@ -127,6 +137,8 @@ type Key struct {
 	privKey crypto.PrivateKey
 	label   string
 	module  pkcs11.Module
+	hash 	crypto.Hash
+	decrypter crypto.Decrypter
 }
 
 // CertificateChain returns the credential as a raw X509 cert chain. This
@@ -155,7 +167,7 @@ func (k *Key) Encrypt(data []byte) ([]byte, error) {
 	publicKey := k.Public()
 	_, ok := publicKey.(*rsa.PublicKey)
 	if ok {
-		return k.encryptRSAWithPKCS11(data)
+		return k.encryptRSA(data)
 	}
 	_, ok = publicKey.(*ecdsa.PublicKey)
 	if ok {
@@ -179,32 +191,30 @@ func (k *Key) Decrypt(encryptedData []byte) ([]byte, error) {
 	return nil, errors.New("decrypt error: Unsupported key type")
 }
 
-func (k *Key) encryptRSA(hash hash.Hash, data []byte) ([]byte, error) {
+func (k *Key) encryptRSA(data []byte) ([]byte, error) {
 	publicKey := k.Public()
 	rsaPubKey := publicKey.(*rsa.PublicKey)
+	hash := cryptoHashToHash(k.hash)
 	return rsa.EncryptOAEP(hash, rand.Reader, rsaPubKey, data, nil)
 }
 
-func (k *Key) encryptRSAWithPKCS11(data []byte) ([]byte, error) {
-	publicKeyFilter := pkcs11.Filter{Class: pkcs11.ClassPublicKey, Label: k.label}
-	pubObjs, err := (k.slot).Objects(publicKeyFilter)
-	if err != nil {
-		return nil, fmt.Errorf("encryptRSAWithPKCS11 error retrieving public key: %v", err)
-	}
-	if len(pubObjs) == 0 {
-		return nil, errors.New("encryptRSAWithPKCS11 error: no public keys found")
-	}
-	pubObj := pubObjs[0]
-	k.privKey = pkcs11.WithPublicKeyHandle(k.privKey, pubObj)
-	return pkcs11.Encrypt(k.privKey, data)
-}
-
 func (k *Key) decryptRSAWithPKCS11(encryptedData []byte) ([]byte, error) {
-	return pkcs11.Decrypt(k.privKey, encryptedData)
+	opts := &rsa.OAEPOptions{Hash: k.hash}
+	return k.decrypter.Decrypt(nil, encryptedData, opts)
 }
 
-func (k *Key) WithHash(hash crypto.Hash) (*Key, error) {
-	res, err := pkcs11.WithHash(k.privKey, hash)
-	k.privKey = res
-	return k, err
+func (k *Key) WithHash(hash crypto.Hash) *Key {
+	k.hash = hash
+	return k
+}
+
+func cryptoHashToHash(hash crypto.Hash) hash.Hash {
+	switch hash {
+	case crypto.SHA256:
+		return sha256.New()
+	case crypto.SHA1:
+		return sha1.New()
+	default:
+		return nil
+	}
 }

@@ -16,16 +16,18 @@ package linux
 import (
 	"bytes"
 	"crypto"
+	"flag"
 	"testing"
 )
 
 const (
 	testModule = "/usr/local/lib/softhsm/libsofthsm2.so"
-	testSlot = "0x268c8a20"
 	testLabel = "Demo Object"
 	testUserPin = "0000"
 )
  
+var testSlot = *flag.String("testSlot", "", "libsofthsm2 slot location")
+
 func TestEncrypt(t *testing.T) {
 	sk, err := NewSecureKey(testModule, testSlot, testLabel, testUserPin)
 	if err != nil {
@@ -34,10 +36,7 @@ func TestEncrypt(t *testing.T) {
 	message := "Plain text to encrypt"
 	bMessage := []byte(message)
 	//Softhsm only supports SHA1
-	res, err := (sk.key).WithHash(crypto.SHA1)
-	if err != nil {
-		t.Errorf("Client Encrypt: error setting hash function, %q", err)
-	}
+	res := (sk.key).WithHash(crypto.SHA1)
 	sk.key = res
 	_, err = sk.Encrypt(bMessage)
 	if err != nil {
@@ -53,10 +52,7 @@ func TestDecrypt(t *testing.T) {
 	message := "Plain text to encrypt"
 	bMessage := []byte(message)
 	//Softhsm only supports SHA1
-	res, err := (sk.key).WithHash(crypto.SHA1)
-	if err != nil {
-		t.Errorf("Client Decrypt: error setting hash function, %q", err)
-	}
+	res := (sk.key).WithHash(crypto.SHA1)
 	sk.key = res
 	cipher, err := sk.Encrypt(bMessage)
 	if err != nil {

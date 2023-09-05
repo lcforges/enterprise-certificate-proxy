@@ -1,5 +1,5 @@
-github.com/lcforges/go-pkcs11 v0.0.0-20230808214450-8e4d0532171b h1:YZ4HcWRyxDh+A6xs72m1+SBNH86BSmVAbHB68ouK3uA=
-github.com/lcforges/go-pkcs11 v0.0.0-20230808214450-8e4d0532171b/go.mod h1:6eQoGcuNJpa7jnd5pMGdkSaQpNDYvPlXWMcjXXThLlY=
+github.com/lcforges/go-pkcs11 v0.0.0-20230830225021-8ad67663130c h1:yl51yZITzHxSGdsSbDt6sGR+US9g5uEFpMez/NHIpKo=
+github.com/lcforges/go-pkcs11 v0.0.0-20230830225021-8ad67663130c/go.mod h1:6eQoGcuNJpa7jnd5pMGdkSaQpNDYvPlXWMcjXXThLlY=
 golang.org/x/crypto v0.10.0 h1:LKqV2xt9+kDzSTfOhx4FrkEBcMrAgHSYgzywV9zcGmM=
 golang.org/x/crypto v0.10.0/go.mod h1:o4eNf7Ede1fv+hwOwZsTHl9EsPFO6q6ZvYR8vYfY45I=
 golang.org/x/sys v0.9.0 h1:KS/R3tvhPqvJvwcKfnBHJwwthS11LRhmM5D59eEXa0s=

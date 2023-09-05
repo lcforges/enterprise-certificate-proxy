@@ -16,7 +16,6 @@ package pkcs11
 import (
 	"bytes"
 	"crypto"
-	"crypto/sha256"
 	"flag"
 	"testing"
 )
@@ -52,23 +51,6 @@ func TestParseHexStringFailure(t *testing.T) {
 	}
 }
 
-func TestEncryptRSA(t *testing.T) {
-	key, err := makeTestKey()
-	if err != nil {
-		t.Errorf("Cred error: %q", err)
-	}
-	defer key.Close()
-	msg := "Plain text to encrypt"
-	bMsg := []byte(msg)
-	ciphertext, err := key.encryptRSA(sha256.New(), bMsg)
-	if err != nil {
-		t.Fatalf("EncryptRSA error: %q", err)
-	}
-	if ciphertext == nil {
-		t.Error("EncryptRSA error: empty ciphertext")
-	}
-}
-
 func TestCredLinux(t *testing.T) {
 	key, err := makeTestKey()
 	if err != nil {
@@ -77,10 +59,9 @@ func TestCredLinux(t *testing.T) {
 	defer key.Close()
 }
 
-func BenchmarkEncryptRSACrypto(b *testing.B) {
+func BenchmarkEncryptRSA(b *testing.B) {
 	msg := "Plain text to encrypt"
 	bMsg := []byte(msg)
-	hashFunc := sha256.New()
 	key, errCred := makeTestKey()
 	if errCred != nil {
 		b.Errorf("Cred error: %q", errCred)
@@ -89,61 +70,13 @@ func BenchmarkEncryptRSACrypto(b *testing.B) {
 	defer key.Close()
 	b.Run("encryptRSA Crypto", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
-			_, errEncrypt := key.encryptRSA(hashFunc, bMsg)
+			_, errEncrypt := key.encryptRSA(bMsg)
 			if errEncrypt != nil {
 				b.Errorf("EncryptRSA error: %q", errEncrypt)
 				return
 			}
 		}
 	})
-}
-
-func TestEncryptRSAWithPKCS11(t *testing.T) {
-	key, errCred := makeTestKey()
-	if errCred != nil {
-		t.Errorf("Cred error: %q", errCred)
-		return
-	}
-	defer key.Close()
-	msg := "Plain text to encrypt"
-	bMsg := []byte(msg)
-	// Softhsm only supports SHA1
-	key, err := key.WithHash(crypto.SHA1)
-	if err != nil {
-		t.Errorf("WithHash error: %q", err)
-	}
-	_, err = key.encryptRSAWithPKCS11(bMsg)
-	if err != nil {
-		t.Errorf("EncryptRSAWithPKCS11 error: %q", err)
-	}
-}
-
-func TestDecryptRSAWithPKCS11(t *testing.T) {
-	key, errCred := makeTestKey()
-	if errCred != nil {
-		t.Errorf("Cred error: %q", errCred)
-		return
-	}
-	defer key.Close()
-	msg := "Plain text to encrypt"
-	bMsg := []byte(msg)
-	// Softhsm only supports SHA1
-	key, err := key.WithHash(crypto.SHA1)
-	if err != nil {
-		t.Errorf("WithHash error: %q", err)
-	}
-	ciphertext, err := key.encryptRSAWithPKCS11(bMsg)
-	if err != nil {
-		t.Errorf("EncryptRSAWithPKCS11 error: %q", err)
-	}
-	decrypted, err := key.decryptRSAWithPKCS11(ciphertext)
-	if err != nil {
-		t.Fatalf("DecryptRSAWithPKCS11 error: %v", err)
-	}
-	decrypted = bytes.Trim(decrypted, "\x00")
-	if string(decrypted) != msg {
-		t.Errorf("DecryptRSAWithPKCS11 Error: expected %q, got %q", msg, string(decrypted))
-	}
 }
 
 func TestEncrypt(t *testing.T) {
@@ -155,12 +88,7 @@ func TestEncrypt(t *testing.T) {
 	defer key.Close()
 	msg := "Plain text to encrypt"
 	bMsg := []byte(msg)
-	// Softhsm only supports SHA1
-	key, err := key.WithHash(crypto.SHA1)
-	if err != nil {
-		t.Errorf("WithHash error: %q", err)
-	}
-	_, err = key.Encrypt(bMsg)
+	_, err := key.Encrypt(bMsg)
 	if err != nil {
 		t.Errorf("Encrypt error: %q", err)
 	}
@@ -176,10 +104,7 @@ func TestDecrypt(t *testing.T) {
 	msg := "Plain text to encrypt"
 	bMsg := []byte(msg)
 	// Softhsm only supports SHA1
-	key, err := key.WithHash(crypto.SHA1)
-	if err != nil {
-		t.Errorf("WithHash error: %q", err)
-	}
+	key = key.WithHash(crypto.SHA1)
 	ciphertext, err := key.Encrypt(bMsg)
 	if err != nil {
 		t.Errorf("Encrypt error: %q", err)
