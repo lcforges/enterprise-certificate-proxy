@@ -21,11 +21,11 @@ import (
 )
 
 const (
-	testModule = "/usr/local/lib/softhsm/libsofthsm2.so"
-	testLabel = "Demo Object"
+	testModule  = "/usr/local/lib/softhsm/libsofthsm2.so"
+	testLabel   = "Demo Object"
 	testUserPin = "0000"
 )
- 
+
 var testSlot = *flag.String("testSlot", "", "libsofthsm2 slot location")
 
 func TestEncrypt(t *testing.T) {

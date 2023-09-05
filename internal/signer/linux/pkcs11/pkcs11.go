@@ -114,7 +114,6 @@ func Cred(pkcs11Module string, slotUint32Str string, label string, userPin strin
 		return nil, errors.New("PrivateKey does not implement crypto.Decrypter")
 	}
 
-
 	return &Key{
 		slot:    kslot,
 		signer:  ksigner,
@@ -123,7 +122,7 @@ func Cred(pkcs11Module string, slotUint32Str string, label string, userPin strin
 		label:   label,
 		module:  *module,
 		// SHA256 initialized as default
-		hash:	 crypto.SHA256,
+		hash:      crypto.SHA256,
 		decrypter: kdecrypter,
 	}, nil
 }
@@ -131,13 +130,13 @@ func Cred(pkcs11Module string, slotUint32Str string, label string, userPin strin
 // Key is a wrapper around the pkcs11 module and uses it to
 // implement signing-related methods.
 type Key struct {
-	slot    *pkcs11.Slot
-	signer  crypto.Signer
-	chain   [][]byte
-	privKey crypto.PrivateKey
-	label   string
-	module  pkcs11.Module
-	hash 	crypto.Hash
+	slot      *pkcs11.Slot
+	signer    crypto.Signer
+	chain     [][]byte
+	privKey   crypto.PrivateKey
+	label     string
+	module    pkcs11.Module
+	hash      crypto.Hash
 	decrypter crypto.Decrypter
 }
 
