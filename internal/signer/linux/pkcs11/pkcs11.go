@@ -113,16 +113,15 @@ func Cred(pkcs11Module string, slotUint32Str string, label string, userPin strin
 	if !ok {
 		return nil, errors.New("PrivateKey does not implement crypto.Decrypter")
 	}
-
+	defaultHash := crypto.SHA256
 	return &Key{
-		slot:    kslot,
-		signer:  ksigner,
-		chain:   kchain,
-		privKey: privKey,
-		label:   label,
-		module:  *module,
-		// SHA256 initialized as default
-		hash:      crypto.SHA256,
+		slot:      kslot,
+		signer:    ksigner,
+		chain:     kchain,
+		privKey:   privKey,
+		label:     label,
+		module:    *module,
+		hash:      defaultHash,
 		decrypter: kdecrypter,
 	}, nil
 }
