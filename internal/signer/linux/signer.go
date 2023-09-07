@@ -59,12 +59,12 @@ type SignArgs struct {
 
 type EncryptArgs struct {
 	Plaintext []byte
-	Hash crypto.Hash
+	Hash      crypto.Hash
 }
 
 type DecryptArgs struct {
 	Ciphertext []byte
-	Hash crypto.Hash
+	Hash       crypto.Hash
 }
 
 // A EnterpriseCertSigner exports RPC methods for signing.
