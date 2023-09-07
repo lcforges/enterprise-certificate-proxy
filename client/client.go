@@ -67,10 +67,12 @@ type SignArgs struct {
 
 type EncryptArgs struct {
 	Plaintext []byte
+	Hash crypto.Hash
 }
 
 type DecryptArgs struct {
 	Ciphertext []byte
+	Hash crypto.Hash
 }
 
 // Key implements credential.Credential by holding the executed signer subprocess.
